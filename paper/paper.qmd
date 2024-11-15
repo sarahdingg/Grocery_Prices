@@ -5,7 +5,7 @@ author:
 thanks: "Code and data are available at: [https://github.com/sarahdingg/Grocery_Prices.git)."
 date: today
 date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "This paper examines the cost of making a standard sandwich across grocers by analyzing the average prices of four key ingredients: bread, ham, lettuce, and tomatoes. Results show significant variation, with No Frills offering the lowest cost and Metro the highest. The analysis highlights how pricing strategies differ among grocers, influencing overall affordability. Insights from this study inform consumer decisions and retailer strategies, while addressing potential biases such as selection and temporal effects."
 format: pdf
 number-sections: true
 bibliography: references.bib
