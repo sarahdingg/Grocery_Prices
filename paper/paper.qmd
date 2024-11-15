@@ -18,8 +18,10 @@ bibliography: references.bib
 
 library(tidyverse)
 library(knitr)
+library(dplyr)
+library(readr)
 
-analysis_data <- read_csv("/Users/sarahding/Downloads/ingredient_cost.csv")
+data <- read_csv("/Users/sarahding/Downloads/ingredient_cost.csv")
 ```
 
 
@@ -41,9 +43,7 @@ The remainder of this paper is structured as follows. @sec-data describes the da
 
 ## Overview
 
-The data was obtained as a SQLite file from Project Hammer [@projecthammer] and cleaned using programming language SQL [@sql] in DB browser [@dbbrowser]. The paper is completed using programming language R [@citeR] to analyze and visualize the data.  
-
-Overview text
+The data was obtained as a SQLite file from Project Hammer [@projecthammer] and cleaned using programming language SQL [@sql] in DB browser [@dbbrowser]. The paper is completed using programming language R [@citeR] to analyze and visualize the data.
 
 ## Measurement
 	
@@ -51,29 +51,26 @@ Some paragraphs about how we go from a phenomena in the world to an entry in the
 
 ## Outcome variables
 
-Add graphs, tables and text. Use sub-sub-headings for each outcome variable or update the subheading to be singular.
-
-
-
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+In the current analysis, the outcome variable is **'price per sandwich'**, it represents the total cost of a standard sandwich at each grocer based on the prices of the ingredients (bread, ham, lettuce, and tomatoes). 
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
 #| echo: false
+#| eval: true
+#| label: tbl-outcome-var
+#| tbl-cap: "Price per sandwich at various grocers, calculated by summing the average cost of each ingredient (bread, ham, lettuce, tomatoes) based on standardized quantities. This table highlights the comparative cost of making a standard sandwich at each grocery store."
+#| warning: false
+#| message: false
 
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+price_per_sandwich <- data %>%
+  group_by(vendor) %>%
+  summarise(price_per_sandwich = sum(avg_cost_per_sandwich, na.rm = TRUE)) %>%
+  rename(Vendor = vendor)
+
+# Display the table
+kable(price_per_sandwich)
 ```
 
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
+The outcome variable in this analysis is the **price per sandwich** for each grocer, which represents the total cost of purchasing the ingredients necessary to make a standard sandwich. This variable was calculated by summing the average costs of essential sandwich components—bread, ham, lettuce, and tomatoes—based on consistent quantities required for one sandwich. As shown in @tbl-outcome-var, there are noticeable differences in sandwich prices across grocers, indicating variation in pricing strategies for staple items. Grocers like No Frills and Loblaws offer more affordable options, while others, such as Metro, have higher costs. This variation in sandwich price per grocer provides insight into each store’s approach to pricing staple foods, which can influence consumer shopping decisions.
 
 ```{r}
 #| label: fig-planes
