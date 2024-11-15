@@ -1,10 +1,8 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Sandwich Ingredient Prices Among Seven Canadian Grocers: Metro Has the Highest Prices "
 author: 
-  - First author
-  - Another author
-thanks: "Code and data are available at: [https://github.com/RohanAlexander/starter_folder](https://github.com/RohanAlexander/starter_folder)."
+  - Sarah Ding
+thanks: "Code and data are available at: [https://github.com/sarahdingg/Grocery_Prices.git)."
 date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
@@ -19,24 +17,23 @@ bibliography: references.bib
 #| message: false
 
 library(tidyverse)
-library(palmerpenguins)
+library(knitr)
+
+analysis_data <- read_csv("/Users/sarahding/Downloads/ingredient_cost.csv")
 ```
 
 
 # Introduction
 
-Overview paragraph
+In this paper, we analyze the cost of making a standard sandwich at various grocery stores to determine which grocer offers the most affordable option. By examining the prices of essential sandwich ingredients—bread, ham, lettuce, and tomatoes—across multiple retailers, we aim to uncover pricing patterns that reflect each store's pricing strategy and competitiveness in offering staple food items.
 
-Estimand paragraph
+The estimand in this study is the average cost of a sandwich based on consistent ingredient quantities, as well as price variations across different grocers. This represents the extent to which price differences in staple ingredients influence consumer choice and access to affordable food options.
 
-Results paragraph
+Our results indicate that certain grocers, such as No Frills and Loblaws, offer lower average sandwich costs, while others, like Metro, are significantly more expensive. These findings suggest that grocers may adopt different pricing approaches on staple items.
 
-Why it matters paragraph
+Understanding the cost structure of essential food items helps reveal how grocery stores price basic meals and maintain affordability for consumers. Insights from this analysis could inform consumer choices, retailer pricing strategies, and policy discussions around food affordability, ultimately benefiting both shoppers and the grocery sector.
 
-Telegraphing paragraph: The remainder of this paper is structured as follows. @sec-data....
-
-
-
+The remainder of this paper is structured as follows. @sec-data describes the data and methodology used for analysis. @sec-analysis-results presents the data analysis results, and finally, @sec-discussion discusses limitations related to correlation, missing data, and potential sources of bias.
 
 
 
@@ -44,7 +41,7 @@ Telegraphing paragraph: The remainder of this paper is structured as follows. @s
 
 ## Overview
 
-We use the statistical programming language R [@citeR].... Our data [@shelter].... Following @tellingstories, we consider...
+The data was obtained as a SQLite file from Project Hammer [@projecthammer] and cleaned using programming language SQL [@sql] in DB browser [@dbbrowser]. The paper is completed using programming language R [@citeR] to analyze and visualize the data.  
 
 Overview text
 
