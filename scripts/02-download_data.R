@@ -9,18 +9,13 @@
 
 
 #### Workspace setup ####
-library(opendatatoronto)
 library(tidyverse)
+library(readr)
 # [...UPDATE THIS...]
 
 #### Download data ####
-# [...ADD CODE HERE TO DOWNLOAD...]
-
-
+analysis_data <- read_csv("/Users/sarahding/Downloads/ingredient_cost.csv")
 
 #### Save data ####
-# [...UPDATE THIS...]
-# change the_raw_data to whatever name you assigned when you downloaded it.
-write_csv(the_raw_data, "inputs/data/raw_data.csv") 
-
+write_csv(analysis_data, "data/02-analysis_data/analysis_data.csv")
          
