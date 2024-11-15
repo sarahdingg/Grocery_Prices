@@ -20,6 +20,7 @@ library(tidyverse)
 library(knitr)
 library(dplyr)
 library(readr)
+library(ggplot2)
 
 data <- read_csv("/Users/sarahding/Downloads/ingredient_cost.csv")
 ```
@@ -35,7 +36,7 @@ Our results indicate that certain grocers, such as No Frills and Loblaws, offer 
 
 Understanding the cost structure of essential food items helps reveal how grocery stores price basic meals and maintain affordability for consumers. Insights from this analysis could inform consumer choices, retailer pricing strategies, and policy discussions around food affordability, ultimately benefiting both shoppers and the grocery sector.
 
-The remainder of this paper is structured as follows. @sec-data describes the data and methodology used for analysis. @sec-analysis-results presents the data analysis results, and finally, @sec-discussion discusses limitations related to correlation, missing data, and potential sources of bias.
+The remainder of this paper is structured as follows. @sec-data describes the data and methodology used for analysis. @sec-results presents the data analysis results, and finally, @sec-discussion discusses limitations related to correlation, missing data, and potential sources of bias.
 
 
 
@@ -57,7 +58,7 @@ In the current analysis, the outcome variable is **'price per sandwich'**, it re
 #| echo: false
 #| eval: true
 #| label: tbl-outcome-var
-#| tbl-cap: "Price per sandwich at various grocers, calculated by summing the average cost of each ingredient (bread, ham, lettuce, tomatoes) based on standardized quantities. This table highlights the comparative cost of making a standard sandwich at each grocery store."
+#| tbl-cap: "Price per sandwich at various grocers, calculated by summing the average cost of each ingredient (bread, ham, lettuce, tomatoes) based on standardized quantities."
 #| warning: false
 #| message: false
 
@@ -72,182 +73,82 @@ kable(price_per_sandwich)
 
 The outcome variable in this analysis is the **price per sandwich** for each grocer, which represents the total cost of purchasing the ingredients necessary to make a standard sandwich. This variable was calculated by summing the average costs of essential sandwich components—bread, ham, lettuce, and tomatoes—based on consistent quantities required for one sandwich. As shown in @tbl-outcome-var, there are noticeable differences in sandwich prices across grocers, indicating variation in pricing strategies for staple items. Grocers like No Frills and Loblaws offer more affordable options, while others, such as Metro, have higher costs. This variation in sandwich price per grocer provides insight into each store’s approach to pricing staple foods, which can influence consumer shopping decisions.
 
-```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
-#| warning: false
-#| message: false
-
-analysis_data <- read_csv(here::here("data/02-analysis_data/analysis_data.csv"))
-
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
-```
-
-Talk way more about it. 
 
 ## Predictor variables
 
-Add graphs, tables and text.
-
-Use sub-sub-headings for each outcome variable and feel free to combine a few into one if they go together naturally.
-
-
-
-
-
-
-
-
-# Model
-
-The goal of our modelling strategy is twofold. Firstly,...
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
-
-
-### Model justification
-
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
-
-# Results
-
-Our results are summarized in @tbl-modelresults.
-
+The predictor variables are:
+- **'Grocer'**: This categorical variable represents the different grocery stores (e.g., No Frills, Loblaws, Metro) and allows for comparison of sandwich costs across grocers.
+- **'Ingredient Price'**: The individual prices of each ingredient (bread, ham, lettuce, tomatoes) at each grocer. These prices are used to calculate the total sandwich cost.
+- **'Units'**: The packaging size or weight (e.g., 200g, 1kg) of each ingredient, as it affects the cost calculation based on required quantities for the sandwich.
 ```{r}
 #| echo: false
 #| eval: true
+#| label: tbl-predictor-var
+#| tbl-cap: "Average cost of individual sandwich ingredients (bread, ham, lettuce, tomatoes) at each grocer."
 #| warning: false
 #| message: false
 
-library(rstanarm)
+predictor_table <- data %>%
+  pivot_wider(names_from = ingredient, values_from = avg_cost_per_sandwich) %>%
+  rename(Grocer = vendor, 
+         `Bread (avg cost)` = bread, 
+         `Ham (avg cost)` = ham, 
+         `Lettuce (avg cost)` = lettuce, 
+         `Tomatoes (avg cost)` = tomatoes)
 
-first_model <-
-  readRDS(file = here::here("models/first_model.rds"))
+# Display the table
+kable(predictor_table)
 ```
+@tbl-predictor-var presents the predictor variables used in this analysis, specifically the average cost of each key sandwich ingredient—bread, ham, lettuce, and tomatoes—at each grocer. Each column represents one of these ingredients, showing the average price offered by each grocer. These prices provide information about the cost structure of individual items, which, when combined, contribute to the overall price per sandwich at each store. By examining the average cost of each ingredient across grocers, we can identify variations in pricing strategies. This breakdown highlights the individual contributions of each ingredient to the final sandwich cost, allowing us to better understand how each grocer positions itself in terms of affordability and value on staple items.
+
+
+# Results {#sec-results}
+
+This section presents findings on the average cost of making a sandwich at each grocers in Canada, visualizations are utilized to aid better understanding of findings. 
+
 
 ```{r}
 #| echo: false
 #| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| label: fig-grocer-trend
+#| fig-cap: "Bar graph illustrating the price of making a standard sandwich across different grocers. Each bar represents the total cost of sandwich ingredients—bread, ham, lettuce, and tomatoes—at a specific grocer, sorted by increasing price."
 #| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
-
-
-
-
-# Discussion
-
-## First discussion point {#sec-first-point}
-
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
-
-## Second discussion point
-
-Please don't use these as sub-heading labels - change them to be what your point actually is.
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
-\newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-```{r}
-#| eval: true
-#| echo: false
 #| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
 
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
 
-posterior_vs_prior(first_model) +
+# Calculate the price per sandwich by summing the average cost per ingredient for each grocer
+price_per_sandwich <- data %>%
+  group_by(vendor) %>%
+  summarise(price_per_sandwich = sum(avg_cost_per_sandwich, na.rm = TRUE)) %>%
+  rename(Grocer = vendor)
+
+# Sort by price to improve the trend visualization
+price_per_sandwich <- price_per_sandwich %>% arrange(price_per_sandwich)
+
+# Create the bar plot
+ggplot(price_per_sandwich, aes(x = reorder(Grocer, price_per_sandwich), y = price_per_sandwich)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Trend in Sandwich Prices Across Grocers",
+       x = "Grocer",
+       y = "Price per Sandwich ($)") +
   theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 ```
-
-## Diagnostics
-
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
+@fig-grocer-trend visualizes @tbl-outcome-var, it displays the variation in sandwich prices across grocers, revealing distinct differences in affordability. No Frills offers the lowest price per sandwich, indicating a focus on budget-friendly pricing for staple ingredients. Grocers like Loblaws, SaveOnFoods, and Walmart follow closely, with relatively moderate sandwich prices. In contrast, Metro's sandwich cost is significantly higher, reflecting a pricing strategy that may cater to a more premium market or higher operational costs. The graph emphasizes how grocers differ in their approach to pricing essential food items, with No Frills and similar stores positioned as cost-effective options for consumers. This trend suggests that pricing strategies and market positioning play a critical role in shaping consumer choices across grocery stores.
 
 
+# Discussion {#sec-discussion}
 
-\newpage
+## Correlation vs. Causation
 
+In this analysis, it is essential to distinguish between correlation and causation when interpreting the relationship between grocers and sandwich prices. The observed differences in sandwich prices across grocers demonstrate a correlation—certain stores consistently have higher or lower costs for the ingredients needed to make a sandwich. However, this does not imply that being associated with a specific grocer directly causes higher or lower prices. Other underlying factors, such as supply chain efficiencies, market positioning, regional cost variations, and vendor-specific strategies, likely influence ingredient pricing. For example, Metro's higher sandwich cost could correlate with a premium branding strategy, but this does not necessarily mean that Metro's branding alone causes the price difference. Establishing causation would require deeper investigation into these factors, beyond the pricing patterns analyzed in this study. Recognizing this distinction helps maintain an objective interpretation of the findings and avoids overgeneralization.
 
-# References
+## Missing Data
 
+Missing data can significantly impact the results and interpretations of this analysis. In the context of this study, any missing values in ingredient prices could lead to an underestimation or misrepresentation of the sandwich cost for certain grocers. For example, if a grocer does not provide pricing data for one of the ingredients, the calculated sandwich price for that grocer might inaccurately appear lower than it truly is. Additionally, missing data could introduce bias if the absence of data is not random but instead reflects systematic differences, such as certain grocers not reporting prices for specific products or categories. To address this, the analysis excluded entries with missing data, ensuring that only complete data were used to calculate sandwich costs. While this approach maintains the integrity of the calculations, it may limit the comprehensiveness of the analysis by excluding certain grocers or ingredients. Future studies could address missing data more comprehensively through imputation methods or by exploring why specific data points are unavailable.
+
+## Sources of Bias
+
+Several sources of bias could influence the findings of this analysis on sandwich prices across grocers. **Selection bias** is a key concern, as the study is limited to a specific set of grocers, which may not represent all stores or regions. For instance, smaller, independent grocery stores or discount retailers not included in the analysis might offer different pricing patterns that could impact overall affordability insights. **Temporal bias** could also arise if the price data collected reflects only a short time frame or specific seasons, leading to potential misrepresentation of average prices if certain ingredients are seasonally affected. **Product variation bias** is another factor, as different grocers may stock variations of the same ingredient (e.g., organic or premium versions) that could be priced higher than standard options. This could skew average costs upward for some grocers, particularly those catering to higher-income markets. Addressing these biases in future research, perhaps by broadening the sample of grocers, including a longer time frame, and standardizing ingredient types, would provide a more comprehensive understanding of grocery pricing for essential items.
 
